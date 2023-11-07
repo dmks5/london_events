@@ -1,26 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import { readRemoteFile } from 'react-papaparse';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
-import { Box } from '@mui/material';
-
-
-function convertArrayToJSON(array) {
-  const headers = array[0];
-  const data = array.slice(1); // Получаем все строки кроме заголовков
-  const jsonData = data.map(row => {
-    let obj = {};
-    headers.forEach((header, index) => {
-      obj[header] = row[index];
-    });
-    return obj;
-  });
-  return jsonData;
-}
-
+import { Card, CardContent, Typography, Link, Box } from '@mui/material';
 
 class App extends Component {
   constructor() {
@@ -33,12 +14,37 @@ class App extends Component {
   componentDidMount() {
     readRemoteFile('https://docs.google.com/spreadsheets/d/e/2PACX-1vTPva1TqjJb1q71rdIyiL8kCTg1ErWP8OWYJQqDLWZhNPP43EechxS7r7mOzKL43En-FHBx0Ql0J0Lp/pub?gid=0&single=true&output=csv', {
       complete: (results) => {
-        const jsonData = convertArrayToJSON(results.data);
-        this.setState({ data: jsonData });
+        const jsonData = this.convertArrayToJSON(results.data);
+        const sortedFilteredData = this.sortAndFilterEvents(jsonData);
+        this.setState({ data: sortedFilteredData });
       },
     });
   }
-  
+
+  convertArrayToJSON(array) {
+    const headers = array[0];
+    const data = array.slice(1);
+    return data.map(row => {
+      let obj = {};
+      headers.forEach((header, index) => {
+        obj[header] = row[index];
+      });
+      return obj;
+    });
+  }
+
+  sortAndFilterEvents(events) {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    return events
+      .map(event => ({
+        ...event,
+        dateObject: new Date(event['Дата'].split('/').reverse().join('/'))
+      }))
+      .filter(event => event.dateObject >= currentDate)
+      .sort((a, b) => a.dateObject - b.dateObject);
+  }
 
   render() {
     return (
@@ -58,27 +64,28 @@ const EventCard = ({ event }) => {
   return (
     <Card sx={{
       mb: 2,
-      p: 2,
       ...(isCancelled && {
         bgcolor: 'error.light',
         color: 'error.contrastText',
       }),
     }}>
-      <CardContent>
-        <Typography variant="h5" component="h2">
-          {event.Дата}
-        </Typography>
-        <Typography sx={{ mb: 2, color: 'text.secondary' }}>
-          {event.Описание || 'Нет описания'}
-        </Typography>
-        <Typography variant="body2" component="p" sx={{ mb: 2 }}>
-          Адрес: {event['Ссылка на карту'] ? <Link href={event['Ссылка на карту']} target="_blank">{event['Адрес по-человечески']}</Link> : 'Адрес не указан'}
-        </Typography>
-        <Typography sx={{ float: 'right', textTransform: 'capitalize', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2, bgcolor: 'background.paper' }}>
+        <Typography sx={{ fontWeight: 'bold', textTransform: 'capitalize' }}>
           {event.Тип || 'Не указан'}
         </Typography>
+        <Typography variant="body2" component="p">
+          {event.Дата}
+        </Typography>
+      </Box>
+      <CardContent>
+        <Typography color="textSecondary">
+          {event.Описание || 'Нет описания'}
+        </Typography>
+        <Typography variant="body2" component="p">
+          Адрес: {event['Ссылка на карту'] ? <Link href={event['Ссылка на карту']} target="_blank">{event['Адрес по-человечески']}</Link> : 'Адрес не указан'}
+        </Typography>
         {isCancelled && (
-          <Typography variant="body2">
+          <Typography color="error" variant="body2">
             Отменено: {reason}
           </Typography>
         )}
