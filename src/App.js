@@ -7,6 +7,21 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { Box } from '@mui/material';
 
+
+function convertArrayToJSON(array) {
+  const headers = array[0];
+  const data = array.slice(1); // Получаем все строки кроме заголовков
+  const jsonData = data.map(row => {
+    let obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = row[index];
+    });
+    return obj;
+  });
+  return jsonData;
+}
+
+
 class App extends Component {
   constructor() {
     super();
@@ -18,11 +33,12 @@ class App extends Component {
   componentDidMount() {
     readRemoteFile('https://docs.google.com/spreadsheets/d/e/2PACX-1vTPva1TqjJb1q71rdIyiL8kCTg1ErWP8OWYJQqDLWZhNPP43EechxS7r7mOzKL43En-FHBx0Ql0J0Lp/pub?gid=0&single=true&output=csv', {
       complete: (results) => {
-        console.log('Data has been loaded:', results.data);
-        this.setState({ data: results.data });
+        const jsonData = convertArrayToJSON(results.data);
+        this.setState({ data: jsonData });
       },
     });
   }
+  
 
   render() {
     return (
