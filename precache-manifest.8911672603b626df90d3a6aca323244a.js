@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "04340f8341c1ed90cd9beea3ea5c30c0",
+    "revision": "009f49d63eedb3b797b7d52f4c5c5572",
     "url": "/london_events/index.html"
   },
   {
-    "revision": "052b79b2281a5f91a94a",
+    "revision": "5125833b1dc379ce78c0",
     "url": "/london_events/static/css/main.c6001462.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/london_events/static/js/2.bbbbc168.chunk.js"
   },
   {
-    "revision": "052b79b2281a5f91a94a",
-    "url": "/london_events/static/js/main.9baaa36b.chunk.js"
+    "revision": "5125833b1dc379ce78c0",
+    "url": "/london_events/static/js/main.52e3c72a.chunk.js"
   },
   {
     "revision": "febb773c9434214fb3c5",
